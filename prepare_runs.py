@@ -2,10 +2,10 @@
 
 import sys, os
 
-gro = "../alaTB_ff03_tip3p_npt.gro"
-top = "../alaTB_ff03_tip3p.top"
-toppp = "../alaTB_ff03_tip3p_pp.top"
-mdp = "../sd_nvt.mdp"
+gro = "alaTB_ff03_tip3p_npt.gro"
+top = "alaTB_ff03_tip3p.top"
+toppp = "alaTB_ff03_tip3p_pp.top"
+mdp = "sd_nvt.mdp"
 tpr = "alaTB_ff03_tip3p_nvt.tpr"
 
 gmx = "/home/david/anaconda3/envs/plumed-mpi/bin/gmx_mpi" 
@@ -17,8 +17,8 @@ gmx = "/home/david/anaconda3/envs/plumed-mpi/bin/gmx_mpi"
 #os.system(command)
 
 # scale solute interactions
-tmax = 600
 t0 = 300
+tmax = 1000
 for nrep in [2, 4, 8, 16]:
     try:
         os.mkdir("nrep%i"%nrep)
@@ -26,11 +26,11 @@ for nrep in [2, 4, 8, 16]:
             print (e)
 
     for i in range(nrep):
-        #        exponent = i/(nrep - 1)
-        exponent = i/(16 - 1)
+        exponent = i/(nrep - 1)
+        #exponent = i/(16 - 1)
         ti = t0*(tmax/t0)**exponent 
         lmbd = t0/ti
-        print ("Run %i; lambda=%.2f"%(i,lmbd))
+        print ("##################\n Run %i\n exponent=%.2f\n lambda=%.2f\n##################\n"%(i,exponent,lmbd))
 
         folder = "nrep%i/rep%i"%(nrep,i)
         try:
@@ -51,5 +51,5 @@ for nrep in [2, 4, 8, 16]:
     print (dirs)
 
     tpr = "alaTB_ff03_tip3p_nvt.tpr"
-    command = "mpiexec --mca opal_cuda_support 1 -np %i %s mdrun -s %s -multidir %s -nsteps 250000 -plumed ../../plumed.dat -hrex -replex 100 -ntomp 1"%(nrep, gmx, tpr, dirs)
+    command = "mpiexec --mca opal_cuda_support 1 -np %i %s mdrun -v -s %s -multidir %s -nsteps 100000 -plumed ../../plumed.dat -hrex -replex 100 -ntomp 1"%(nrep, gmx, tpr, dirs)
     os.system(command)
